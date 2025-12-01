@@ -25,6 +25,36 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Building the Syncthing API
+
+To build and use the Syncthing API in this project:
+
+1. Clone the Syncthing repository:
+   ```bash
+   git clone https://github.com/syncthing/syncthing.git
+   cd syncthing
+   ```
+
+2. Build Syncthing:
+   ```bash
+   go build -o syncthing .
+   ```
+
+3. Run Syncthing:
+   ```bash
+   ./syncthing
+   ```
+
+4. Configure API access:
+   - Open Syncthing in your browser (usually at http://localhost:8384)
+   - Go to Settings → GUI
+   - Enable API access
+   - Generate an API key
+
+5. Update your Expo app to use the Syncthing API by:
+   - Adding the API endpoint and credentials to your app configuration
+   - Implementing API calls in your components
+
 ## Get a fresh project
 
 When you're ready, run:
