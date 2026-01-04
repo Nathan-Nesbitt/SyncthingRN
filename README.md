@@ -6,15 +6,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-2. Start the app
+2. Build the application
 
-   ```bash
-   npx expo start
-   ```
+```bash
+npx react-native run-android
+```
+
+3. 
 
 In the output, you'll find options to open the app in a
 
@@ -25,35 +27,10 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Building the Syncthing API
+## Building the Syncthing API for android
 
-To build and use the Syncthing API in this project:
-
-1. Clone the Syncthing repository:
-   ```bash
-   git clone https://github.com/syncthing/syncthing.git
-   cd syncthing
-   ```
-
-2. Build Syncthing:
-   ```bash
-   go build -o syncthing .
-   ```
-
-3. Run Syncthing:
-   ```bash
-   ./syncthing
-   ```
-
-4. Configure API access:
-   - Open Syncthing in your browser (usually at http://localhost:8384)
-   - Go to Settings → GUI
-   - Enable API access
-   - Generate an API key
-
-5. Update your Expo app to use the Syncthing API by:
-   - Adding the API endpoint and credentials to your app configuration
-   - Implementing API calls in your components
+1. Run `git submodule update --init` to get the syncthing submodule.
+2. Run `cd syncthing && go `
 
 ## Get a fresh project
 
