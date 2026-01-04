@@ -10,13 +10,39 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 npm install
 ```
 
-2. Build the application
+2. Ensure that the submodules have been pulled (Pulls syncthing from remote)
+
+```bash
+git submodule update --init --recursive
+```
+
+3. Ensure that you have android studio set up, you have installed the SDK, and that you have set the environment variables in your environment. E.g. in `~/.bashrc` you can set:
+
+```sh
+export ANDROID_HOME=~/Android/Sdk
+export ANDROID_NDK_ROOT=~/Android/Sdk/ndk
+```
+
+Then run the following to refresh the terminal with the variables:
+
+```sh
+. ~/.bashrc
+```
+
+3. PreBuild the application to create the android folder.
+
+```bash
+npx expo prebuild
+```
+
+
+4. Run the application that was built
 
 ```bash
 npx react-native run-android
 ```
 
-3. 
+5. 
 
 In the output, you'll find options to open the app in a
 
