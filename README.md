@@ -36,7 +36,13 @@ npx expo prebuild
 ```
 
 
-4. Run the application that was built
+4. Run expo in one terminal
+
+```bash
+npm run expo
+```
+
+5. Build and run the application in a second window:
 
 ```bash
 npx react-native run-android
