@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import spawnAsync from '@expo/spawn-async';
 
 export type SyncthingFlags = Record<string, string | number | boolean | undefined>;
 
@@ -8,7 +8,6 @@ function flagsToArgs(flags?: SyncthingFlags): string[] {
 
     for (const [key, value] of Object.entries(flags)) {
         if (value === undefined || value === false) continue;
-
         if (value === true) args.push(`--${key}`);
         else args.push(`--${key}=${value}`);
     }
@@ -19,10 +18,13 @@ export class SyncthingExec {
     constructor(private binary: string = "syncthing") {}
 
     private async run(command: string, flags?: SyncthingFlags, extraArgs: string[] = []) {
-        const args = [command, ...flagsToArgs(flags), ...extraArgs].join(" ");
-        const full = `${this.binary} ${args}`.trim();
+        // Split the command string into subcommands, e.g., "cli sub" → ["cli", "sub"]
+        const commandParts = command.split(" ").filter(Boolean);
+        const args = [...commandParts, ...flagsToArgs(flags), ...extraArgs];
 
-        return exec(full);
+        return spawnAsync(this.binary, args, {
+            stdio: 'inherit', // optional: forward output to console
+        });
     }
 
     serve(flags?: SyncthingFlags) { return this.run("serve", flags); }
