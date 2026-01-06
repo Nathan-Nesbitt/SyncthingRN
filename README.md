@@ -39,7 +39,7 @@ npx expo prebuild
 4. Run expo in one terminal
 
 ```bash
-npm run expo
+npx expo start
 ```
 
 5. Build and run the application in a second window:

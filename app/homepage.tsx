@@ -1,22 +1,41 @@
-import { useSyncthing } from '@/utils/syncthing/SyncthingContext';
-import { useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { createSyncthingInstance, generateSyncthingEnvironment, killSyncthing } from '@/utils/syncthing/SyncthingExec';
+import { useEffect, useState } from 'react';
+import { Button, NativeModules, StyleSheet, Text, View } from 'react-native';
 
+// Get access to our native module
+const { SyncthingModule } = NativeModules;
+
+console.log(NativeModules)
 
 export default function Homepage() {
   const [status, setStatus] = useState('Not started');
   const [isRunning, setIsRunning] = useState(false);
-
-  const { syncthing } = useSyncthing();
+  const [isApiChecked, setIsApiChecked] = useState(false);
+  const [apiStatus, setApiStatus] = useState('Not checked');
 
   
-  // For Expo, we'll simulate the Syncthing functionality
-  // In a real implementation, you'd use Expo's APIs or EAS build with custom native modules
+  // Initialize Syncthing when component mounts
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        if (SyncthingModule) {
+          console.log("Initializing Syncthing native module...");
+        } else {
+          setStatus('Native module not available');
+        }
+      } catch (error: any) {
+        console.error('Error initializing Syncthing:', error);
+        setStatus('Error initializing: ' + error.message);
+      }
+    };
+    
+    initialize();
+  }, []);
+
   const startSyncthing = async () => {
     try {
-      setStatus('Starting...');
-      // Simulate starting process
-      setStatus('Running');
+      setStatus('Starting Syncthing...');
+      await createSyncthingInstance(SyncthingModule, generateSyncthingEnvironment())
       setIsRunning(true);
     } catch (error :any) {
       setStatus('Error: ' + error.message);
@@ -25,9 +44,8 @@ export default function Homepage() {
 
   const stopSyncthing = async () => {
     try {
-      setStatus('Stopping...');
-      // Simulate stopping process
-      await exec("syncthing serve");
+      setStatus('Stopping Syncthing...');
+      killSyncthing(SyncthingModule)
       setStatus('Stopped');
       setIsRunning(false);
     } catch (error :any) {
@@ -35,15 +53,51 @@ export default function Homepage() {
     }
   };
 
+  const checkSyncthingApi = async () => {
+    try {
+      setIsApiChecked(true);
+      setApiStatus('Checking...');
+      
+      // Make API request to syncthing server (typically runs on localhost:8384)
+      const response = await fetch('http://localhost:8384/rest/system/status', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setApiStatus('Running - ' + data.version);
+      } else {
+        setApiStatus('Not running');
+      }
+    } catch (error: any) {
+      console.error('Error checking Syncthing API:', error);
+      // Provide more specific error messages for common cases
+      if (error.message && error.message.includes('Network request failed')) {
+        setApiStatus('Network error - Syncthing may not be running or accessible');
+      } else {
+        setApiStatus('Error: ' + error.message);
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Syncthing React Native</Text>
       <Text style={styles.status}>Status: {status}</Text>
+      <Text style={styles.status}>API Status: {apiStatus}</Text>
       <View style={styles.buttonContainer}>
         <Button 
           title={isRunning ? "Stop Syncthing" : "Start Syncthing"} 
           onPress={isRunning ? stopSyncthing : startSyncthing}
           disabled={status.includes('ing...')}
+        />
+        <Button 
+          title="Check Syncthing Status" 
+          onPress={checkSyncthingApi}
+          disabled={isApiChecked && status.includes('ing...')}
         />
       </View>
     </View>

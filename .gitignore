@@ -40,7 +40,8 @@ app-example
 
 # generated native folders
 /ios
-/android
-
+# Ignore android build artifacts but preserve the specific Java source directory
+/android/*
+!/android/app/src/main/java/com/anonymous/syncthingrn
 # Syncthing ignore
 syncthing/pkg
