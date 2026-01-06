@@ -42,6 +42,18 @@ app-example
 /ios
 # Ignore android build artifacts but preserve the specific Java source directory
 /android/*
+!/android/app/
+/android/app/*
+!/android/app/src/
+/android/app/src/*
+!/android/app/src/main/
+/android/app/src/main/*
+!/android/app/src/main/java/
+/android/app/src/main/java/*
+!/android/app/src/main/java/com/
+/android/app/src/main/java/com/*
+!/android/app/src/main/java/com/anonymous/
+/android/app/src/main/java/com/anonymous/*
 !/android/app/src/main/java/com/anonymous/syncthingrn
 # Syncthing ignore
 syncthing/pkg

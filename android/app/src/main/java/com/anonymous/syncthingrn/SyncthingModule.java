@@ -20,13 +20,18 @@ import android.net.ConnectivityManager;
 import androidx.annotation.RequiresApi;
 
 import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 
 import java.io.InputStreamReader;
@@ -87,11 +92,6 @@ public class SyncthingModule extends ReactContextBaseJavaModule {
         return fullCommand;
     }
 
-    @ReactMethod
-    public static void runShellCommand(String command) {
-        runShellCommandInternal(command);
-    }
-
     public static String[] readableArrayToStringArray(ReadableArray readableArray) {
         String[] stringArray = new String[readableArray.size()];
         for (int i = 0; i < readableArray.size(); i++) {
@@ -109,7 +109,6 @@ public class SyncthingModule extends ReactContextBaseJavaModule {
         }
         return hashMap;
     }
-
 
     private static ShellCommandResponse runShellCommandInternal(String command) {
         int exitCode = 255;
@@ -160,6 +159,7 @@ public class SyncthingModule extends ReactContextBaseJavaModule {
         return new ShellCommandResponse(exitCode, logs);
     }
 
+
     private ReactApplicationContext reactContext;
 
     private final String SYNCTHING_BINARY_STRING = "libsyncthing.so";
@@ -170,14 +170,57 @@ public class SyncthingModule extends ReactContextBaseJavaModule {
         this.validateBinaryExists();
     }
 
+    @ReactMethod
+    public void runShellCommand(String command, Promise promise) {
+        try {
+            ShellCommandResponse response = runShellCommandInternal(command);
+            // Convert response to JS object
+            WritableMap resultMap = new WritableNativeMap();
+            
+            resultMap.putInt("exitCode", response.exitCode());
+            
+            WritableArray logsArray = new WritableNativeArray();
+            for (String log : response.logs()) {
+                logsArray.pushString(log);
+            }
+            
+            resultMap.putArray("logs", logsArray);
+            // Add the command that was executed
+            resultMap.putString("command", command);
+            
+            promise.resolve(resultMap);
+        } catch (Exception e) {
+            promise.reject("RUN_SHELL_COMMAND_ERROR", e.getMessage());
+        }
+    }
+
     @Override
     public String getName() {
         return NAME;
     }
 
     @ReactMethod
-    public void createSyncthingInstance(ReadableArray command, ReadableMap environmentVariables) throws IOException, ExecutableNotFoundException {
-        createSyncthingInstanceInternal(readableArrayToStringArray(command), readableMapToHashMap(environmentVariables));
+    public void createSyncthingInstance(ReadableArray command, ReadableMap environmentVariables, Promise promise) throws IOException, ExecutableNotFoundException {
+        try {
+            RunSyncthingResponse response = createSyncthingInstanceInternal(readableArrayToStringArray(command), readableMapToHashMap(environmentVariables));
+            // Convert response to JS object
+            WritableMap resultMap = new WritableNativeMap();
+            resultMap.putInt("exitCode", response.exitCode());
+            WritableArray logsArray = new WritableNativeArray();
+            for (String log : response.logs()) {
+                logsArray.pushString(log);
+            }
+            resultMap.putArray("logs", logsArray);
+            // Add the command that was executed
+            WritableArray commandArray = new WritableNativeArray();
+            for (int i = 0; i < command.size(); i++) {
+                commandArray.pushString(command.getString(i));
+            }
+            resultMap.putArray("command", commandArray);
+            promise.resolve(resultMap);
+        } catch (Exception e) {
+            promise.reject("CREATE_SYNCTHING_INSTANCE_ERROR", e.getMessage());
+        }
     }
 
 
@@ -187,8 +230,16 @@ public class SyncthingModule extends ReactContextBaseJavaModule {
 
 
     @ReactMethod
-    public void killSyncthing() {
-        killSyncthingInternal();
+    public void killSyncthing(Promise promise) {
+        try {
+            killSyncthingInternal();
+            // Create a response that includes what was killed
+            com.facebook.react.bridge.WritableMap resultMap = new com.facebook.react.bridge.WritableNativeMap();
+            resultMap.putString("status", "Syncthing killed successfully");
+            promise.resolve(resultMap);
+        } catch (Exception e) {
+            promise.reject("KILL_SYNCTHING_ERROR", e.getMessage());
+        }
     }
 
     private String getGatewayIpV4() {

@@ -5,8 +5,6 @@ import { Button, NativeModules, StyleSheet, Text, View } from 'react-native';
 // Get access to our native module
 const { SyncthingModule } = NativeModules;
 
-console.log(NativeModules)
-
 export default function Homepage() {
   const [status, setStatus] = useState('Not started');
   const [isRunning, setIsRunning] = useState(false);
@@ -35,7 +33,7 @@ export default function Homepage() {
   const startSyncthing = async () => {
     try {
       setStatus('Starting Syncthing...');
-      await createSyncthingInstance(SyncthingModule, generateSyncthingEnvironment())
+      createSyncthingInstance(SyncthingModule, generateSyncthingEnvironment())
       setIsRunning(true);
     } catch (error :any) {
       setStatus('Error: ' + error.message);
@@ -59,17 +57,21 @@ export default function Homepage() {
       setApiStatus('Checking...');
       
       // Make API request to syncthing server (typically runs on localhost:8384)
-      const response = await fetch('http://localhost:8384/rest/system/status', {
+      const response = await fetch('http://127.0.0.1:8384/rest/db/completion', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
+          'X-API-Key': 'foobar'
         }
       });
       
       if (response.ok) {
         const data = await response.json();
-        setApiStatus('Running - ' + data.version);
+        console.log(data)
+        setApiStatus('Running');
       } else {
+        const data = await response.text();
+        console.log(data)
         setApiStatus('Not running');
       }
     } catch (error: any) {
@@ -92,12 +94,10 @@ export default function Homepage() {
         <Button 
           title={isRunning ? "Stop Syncthing" : "Start Syncthing"} 
           onPress={isRunning ? stopSyncthing : startSyncthing}
-          disabled={status.includes('ing...')}
         />
         <Button 
           title="Check Syncthing Status" 
           onPress={checkSyncthingApi}
-          disabled={isApiChecked && status.includes('ing...')}
         />
       </View>
     </View>

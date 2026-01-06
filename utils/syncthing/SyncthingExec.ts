@@ -17,19 +17,19 @@ interface SyncthingEnvironmentVariables {
     PREF_DEBUG_FACILITIES_ENABLED?: "true" | "false",
 }
 
-interface ShellCommandResponse {
+interface SyncthingResponse {
+    command: string[],
     exitCode: number,
     logs: string[]
 }
+
+type ShellCommandResponse = SyncthingResponse
 
 interface KillSyncthingResponse {
-    responses: ShellCommandResponse
+    responses: SyncthingResponse
 }
 
-interface RunSyncthingResponse {
-    exitCode: number,
-    logs: string[]
-}
+type RunSyncthingResponse = SyncthingResponse
 
 interface SyncthingModule {
     createSyncthingInstance(commands: string[], environment: SyncthingEnvironmentVariables): Promise<RunSyncthingResponse>;
@@ -56,7 +56,7 @@ async function run(syncthingModule: SyncthingModule, environment: SyncthingEnvir
 
     // Try to use native module first if available
     try {
-        const resultCode = await syncthingModule.runShellCommand(args)
+        // const resultCode = await syncthingModule.runShellCommand()
     } catch (err) {
 
     }
@@ -129,15 +129,20 @@ export function generateSyncthingEnvironment(
 
 // Initialize Syncthing with environment variables
 export async function createSyncthingInstance(syncthingModule: SyncthingModule, environment: SyncthingEnvironmentVariables) {
-    return await syncthingModule.createSyncthingInstance(["--no-browser"], environment)
+    const foo = await syncthingModule.createSyncthingInstance(["--no-browser", "--gui-apikey=foobar"], environment)
+    console.log(foo)
+    return foo
 }
 
 export async function killSyncthing(syncthingModule: SyncthingModule) {
     return await syncthingModule.killSyncthing()
 }
 
+async function cli(syncthingModule: SyncthingModule, environment: SyncthingEnvironmentVariables, sub: string, flags?: SyncthingFlags, args: string[] = []) { r
+    return await run(syncthingModule, environment,`cli ${sub}`, flags, args); 
+}
 
-export function cli(syncthingModule: SyncthingModule, environment: SyncthingEnvironmentVariables, sub: string, flags?: SyncthingFlags, args: string[] = []) { return run(syncthingModule, environment,`cli ${sub}`, flags, args); }
+
 
 export function browser(syncthingModule: SyncthingModule, environment: SyncthingEnvironmentVariables, flags?: SyncthingFlags) { return run(syncthingModule, environment, "browser", flags); }
 
