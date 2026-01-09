@@ -18,7 +18,7 @@ public class SyncthingPackage implements ReactPackage {
         List<NativeModule> modules = new ArrayList<>();
         try {
             modules.add(new SyncthingModule(reactContext));
-        } catch (SyncthingModule.ExecutableNotFoundException e) {
+        } catch (SyncthingCore.ExecutableNotFoundException e) {
             Log.e("Error Loading", e.toString());
         }
         return modules;

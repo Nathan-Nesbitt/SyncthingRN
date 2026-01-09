@@ -1,15 +1,17 @@
-import { createSyncthingInstance, generateSyncthingEnvironment, killSyncthing } from '@/utils/syncthing/SyncthingExec';
+import { generateSyncthingEnvironment, killSyncthing, spawnSyncthingWorker } from '@/utils/syncthing/SyncthingModule';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Button, NativeModules, StyleSheet, Text, View } from 'react-native';
 
 // Get access to our native module
 const { SyncthingModule } = NativeModules;
 
-export default function Homepage() {
+export default function Index() {
   const [status, setStatus] = useState('Not started');
   const [isRunning, setIsRunning] = useState(false);
   const [isApiChecked, setIsApiChecked] = useState(false);
   const [apiStatus, setApiStatus] = useState('Not checked');
+  const router = useRouter();
 
   
   // Initialize Syncthing when component mounts
@@ -33,7 +35,7 @@ export default function Homepage() {
   const startSyncthing = async () => {
     try {
       setStatus('Starting Syncthing...');
-      createSyncthingInstance(SyncthingModule, generateSyncthingEnvironment())
+      spawnSyncthingWorker(SyncthingModule, generateSyncthingEnvironment())
       setIsRunning(true);
     } catch (error :any) {
       setStatus('Error: ' + error.message);
@@ -107,15 +109,40 @@ export default function Homepage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#f5fcff',
     padding: 20,
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#e0e0e0',
+    marginBottom: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  navBarTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  settingsButton: {
+    padding: 10,
+    backgroundColor: '#007AFF',
+    borderRadius: 5,
+  },
+  settingsButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
   status: {
     fontSize: 18,
@@ -124,5 +151,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '80%',
+    alignSelf: 'center',
   },
 });

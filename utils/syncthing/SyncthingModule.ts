@@ -35,6 +35,8 @@ interface SyncthingModule {
     createSyncthingInstance(commands: string[], environment: SyncthingEnvironmentVariables): Promise<RunSyncthingResponse>;
     killSyncthing(): Promise<KillSyncthingResponse>;
     runShellCommand(command: string): Promise<ShellCommandResponse>;
+    spawnSyncthingWorker(environment: SyncthingEnvironmentVariables): Promise<string>;
+    stopSyncthingWorker(): Promise<string>;
 }
 
 function flagsToArgs(flags?: SyncthingFlags): string[] {
@@ -128,14 +130,14 @@ export function generateSyncthingEnvironment(
 }
 
 // Initialize Syncthing with environment variables
-export async function createSyncthingInstance(syncthingModule: SyncthingModule, environment: SyncthingEnvironmentVariables) {
-    const foo = await syncthingModule.createSyncthingInstance(["--no-browser", "--gui-apikey=foobar"], environment)
+export async function spawnSyncthingWorker(syncthingModule: SyncthingModule, environment: SyncthingEnvironmentVariables) {
+    const foo = await syncthingModule.spawnSyncthingWorker(environment)
     console.log(foo)
     return foo
 }
 
 export async function killSyncthing(syncthingModule: SyncthingModule) {
-    return await syncthingModule.killSyncthing()
+    return await syncthingModule.stopSyncthingWorker();
 }
 
 async function cli(syncthingModule: SyncthingModule, environment: SyncthingEnvironmentVariables, sub: string, flags?: SyncthingFlags, args: string[] = []) { r

@@ -63,6 +63,15 @@ You can start developing by editing the files inside the **app** directory. This
 
 If you run into weird issues, sometimes you need to restart to get the build to fix JDK issues.
 
+### Troubleshooting Syncthing API Issues
+
+If you encounter the error "Network request failed" when checking Syncthing API status:
+
+1. Make sure Syncthing is actually running by starting it with the "Start Syncthing" button
+2. The application tries to connect to `http://10.0.2.2:8384/rest/system/status` which is the standard way for Android emulators to access the host machine
+3. If the error persists, check that the Syncthing binary was properly built and that the Android emulator can access the host
+4. Verify that the Syncthing process is actually running by checking the logs in the console when starting it
+
 ## Building the Syncthing API for android
 
 1. Run `git submodule update --init` to get the syncthing submodule.
