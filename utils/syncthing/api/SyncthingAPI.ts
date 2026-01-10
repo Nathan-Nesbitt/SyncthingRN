@@ -24,6 +24,7 @@ class SyncthingAPI {
    * Generic GET request method
    */
   private async get<T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {
+    console.log(this.apiKey)
     const url = new URL(`${this.baseUrl}/${endpoint}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {

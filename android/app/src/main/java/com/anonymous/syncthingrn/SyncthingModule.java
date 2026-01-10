@@ -86,40 +86,15 @@ public class SyncthingModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void spawnSyncthingWorker(ReadableMap environmentVariables, Promise promise) throws IOException, SyncthingCore.ExecutableNotFoundException {
+        Log.e(TAG, "Spawning Syncthing Worker");
         SyncthingWorker.startWorker(this.reactContext, readableMapToHashMap(environmentVariables));
         promise.resolve("");
     }
 
     @ReactMethod
-    public void runSyncthingCommand(ReadableArray params, ReadableMap environmentVariables, Promise promise) throws IOException, SyncthingCore.ExecutableNotFoundException {
-        try {
-            SyncthingCore.RunSyncthingResponse response = this.syncthingCore.runSyncthingCommand(readableArrayToStringArray(params), readableMapToHashMap(environmentVariables));
-            // Convert response to JS object
-            WritableMap resultMap = new WritableNativeMap();
-            resultMap.putInt("exitCode", response.exitCode());
-            WritableArray logsArray = new WritableNativeArray();
-            for (String log : response.logs()) {
-                logsArray.pushString(log);
-            }
-            resultMap.putArray("logs", logsArray);
-            // Add the command that was executed
-            WritableArray commandArray = new WritableNativeArray();
-            for (int i = 0; i < params.size(); i++) {
-                commandArray.pushString(params.getString(i));
-            }
-            resultMap.putArray("command", commandArray);
-            promise.resolve(resultMap);
-        } catch (Exception e) {
-            promise.reject("CREATE_SYNCTHING_INSTANCE_ERROR", e.getMessage());
-        }
-    }
-
-    @ReactMethod
-    public void killSyncthing(Promise promise) {
-        try {
-            
-        } catch (Exception e) {
-            promise.reject("KILL_SYNCTHING_ERROR", e.getMessage());
-        }
+    public void getAPIKey(Promise promise) throws IOException, SyncthingCore.ExecutableNotFoundException {
+        String[] parameters = {"cli", "config", "gui", "apikey", "get"};
+        String result = this.syncthingCore.runSyncthingCommand(parameters, this.syncthingCore.validateSyncthingEnvironment(new HashMap<>())).toString();
+        promise.resolve(result);
     }
 }

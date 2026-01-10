@@ -198,11 +198,52 @@ public class SyncthingCore {
         }
     }
 
-    public RunSyncthingResponse runSyncthingCommand(String[] parameters, HashMap<String, String> environmentVariables) throws IOException, ExecutableNotFoundException {
+
+    public StringBuilder runSyncthingCommand(String[] parameters, HashMap<String, String> environmentVariables) throws IOException, ExecutableNotFoundException {
         Process syncthingProcess = null;
-        MulticastLock multicastLock = null;
+        StringBuilder logs = new StringBuilder();
+
+        try {
+            // Set up the full command with parameters, and the environment variables
+            String[] command = createCommandWithBinary(getBinaryLocation(), parameters);
+            Log.e(TAG, Arrays.toString(command));
+
+            HashMap<String, String> validatedEnvironmentVariables = validateSyncthingEnvironment(environmentVariables);
+            Log.e(TAG, validatedEnvironmentVariables.toString());
+
+            // Creates a process with the environment variables
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.environment().putAll(validateSyncthingEnvironment(environmentVariables));
+            syncthingProcess = processBuilder.start();
+
+            // Get logs
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(syncthingProcess.getInputStream()));
+
+            // Grab the results
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                logs.append(line + "\n");
+            }
+            bufferedReader.close();
+            // When the process is done this will run.
+            syncthingProcess.waitFor();
+
+            Log.e(TAG, "LOGS: " + logs.toString());
+
+        } catch (IOException | InterruptedException e) {
+            logs.append(String.format("Failed to execute syncthing binary or read output: %1$s", e));
+        }
+
+        return logs;
+    }
+
+    ///
+    /// This Method does not react output from file, if you run a worker in the background and try to read logs it causes a hang.
+    /// You have to inherit the IO to the worker.
+    ///
+    public int runSyncthing(String[] parameters, HashMap<String, String> environmentVariables) throws IOException, ExecutableNotFoundException {
+        Process syncthingProcess = null;
         int exitCode = 0;
-        List<String> logs = new ArrayList<String>();
 
         try {
             // Set up the full command with parameters, and the environment variables
@@ -222,10 +263,10 @@ public class SyncthingCore {
             exitCode = syncthingProcess.waitFor();
             
         } catch (IOException | InterruptedException e) {
-            logs.add(String.format("Failed to execute syncthing binary or read output: %1$s", e));
+            exitCode = 255;
         }
 
-        return new RunSyncthingResponse(exitCode, logs);
+        return exitCode;
     }
 
     /**
@@ -295,7 +336,7 @@ public class SyncthingCore {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/syncthing";
     }
 
-    private HashMap<String, String> validateSyncthingEnvironment(HashMap<String, String> environment) {
+    public HashMap<String, String> validateSyncthingEnvironment(HashMap<String, String> environment) {
         
         if (!environment.containsKey("HOME") || environment.get("HOME") == "") {
             environment.put("HOME", getSyncthingHomeDirectoryAbsolutePath());

@@ -1,59 +1,45 @@
 import Folders from '@/components/folders';
 import { Button, ButtonText } from '@/components/ui/button';
-import SyncthingAPI from '@/utils/syncthing/api/SyncthingAPI';
-import { generateSyncthingEnvironment, spawnSyncthingWorker } from '@/utils/syncthing/SyncthingModule';
+import { generateSyncthingEnvironment } from '@/utils/syncthing/SyncthingModule';
+import { useSyncthing } from '@/utils/syncthing/SyncthingProvider';
 import { useEffect, useState } from 'react';
-import { NativeModules, ScrollView, StyleSheet, Text, View } from 'react-native';
-
-// Get access to our native module
-const { SyncthingModule } = NativeModules;
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function Index() {
-  const [isInitialized, setIsInitialized] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-
+  const syncthing = useSyncthing();
   
   // Initialize Syncthing when component mounts
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        if (SyncthingModule) {
-          console.log("Initializing Syncthing native module...");
-          console.log("Starting syncthing");
-          spawnSyncthingWorker(SyncthingModule, generateSyncthingEnvironment())
-          setIsInitialized(true);
-        } 
-      } catch (error: any) {
-        console.error('Error initializing Syncthing:', error);
-      }
-    };
     
-    initialize();
   }, []);
 
-  useEffect(() => {
-    const api = new SyncthingAPI("foobar");
-    api.getNoAuthHealth().then(result => {
-      if(result.status === "OK") {
-        setIsRunning(true);
-      }
-    });
-  }, [isInitialized])
-
   const checkSyncthingApi = async () => {
-    const api = new SyncthingAPI("foobar");
-    api.getNoAuthHealth().then(result => {
+    syncthing.api?.getNoAuthHealth().then(result => {
       if(result.status === "OK") {
         setIsRunning(true);
       }
     })
   };
 
+  const spawnSyncthingWorker = () => {
+    syncthing.module?.spawnSyncthingWorker(generateSyncthingEnvironment())
+    syncthing.updateApiKey();
+  }
+
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.status}>Syncthing Initialized: {String(isInitialized)}</Text>
+      <Text style={styles.status}>Syncthing Initialized: {String(syncthing.isInitialized)}</Text>
       <Text style={styles.status}>API Status: {String(isRunning)}</Text>
       
+      <View style={styles.buttonContainer}>
+        <Button 
+          onPress={spawnSyncthingWorker}
+        >
+          <ButtonText>Start Syncthing</ButtonText>
+        </Button>
+      </View>
+
       <View style={styles.buttonContainer}>
         <Button 
           onPress={checkSyncthingApi}

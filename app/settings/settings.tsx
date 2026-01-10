@@ -1,4 +1,4 @@
-import SyncthingAPI from '@/utils/syncthing/api/SyncthingAPI';
+import { useSyncthing } from '@/utils/syncthing/SyncthingProvider';
 import React, { useEffect, useState } from 'react';
 import { Button, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -7,11 +7,12 @@ export default function Settings() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const syncthing = useSyncthing();
+
     useEffect(() => {
         const fetchConfig = async () => {
         try {
-            const api = new SyncthingAPI("foobar");
-            const configData = await api.getConfig();
+            const configData = await syncthing.api?.getConfig();
             setConfig(configData);
             setLoading(false);
         } catch (err) {
@@ -49,8 +50,7 @@ export default function Settings() {
 
     const handleSave = async () => {
         try {
-        const api = new SyncthingAPI("foobar");
-        await api.putConfig(config);
+        await syncthing.api?.putConfig(config);
         alert('Config saved successfully!');
         } catch (err) {
         alert('Failed to save config: ' + (err as Error).message);

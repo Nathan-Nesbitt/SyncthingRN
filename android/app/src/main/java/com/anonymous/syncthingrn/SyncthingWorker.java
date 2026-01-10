@@ -15,6 +15,7 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -40,13 +41,13 @@ public class SyncthingWorker extends Worker {
      */
     public static void startWorker(ReactApplicationContext context, HashMap environmentVariables) {
 
-        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+        // Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
-        OneTimeWorkRequest syncthingWorkerRequest = new OneTimeWorkRequest.Builder(SyncthingWorker.class).setConstraints(constraints).build();
+        OneTimeWorkRequest syncthingWorkerRequest = new OneTimeWorkRequest.Builder(SyncthingWorker.class).build();
 
         Operation manager = WorkManager.getInstance(context).enqueueUniqueWork(
             TAG,
-            ExistingWorkPolicy.KEEP,
+            ExistingWorkPolicy.REPLACE,
             syncthingWorkerRequest
         );
     }
@@ -60,6 +61,7 @@ public class SyncthingWorker extends Worker {
        this.context = context;
     }
 
+    @NonNull
     @Override
     public Result doWork() {
         // Since we are always running this via a worker, and the worker should always
@@ -70,7 +72,7 @@ public class SyncthingWorker extends Worker {
             SyncthingCore syncthingCore = new SyncthingCore(context);
         
             // Create command to start syncthing with minimal arguments
-            String[] parameters = {"--no-browser", "--gui-apikey=foobar"};
+            String[] parameters = {"--no-browser"};
             
             // Create environment variables
             HashMap<String, String> environmentVariables = new HashMap<>();
@@ -79,9 +81,9 @@ public class SyncthingWorker extends Worker {
             setForegroundAsync(getForegroundInfo());
 
             // Create the syncthing instance using the SyncthingCore's method
-            SyncthingCore.RunSyncthingResponse response = syncthingCore.runSyncthingCommand(parameters, environmentVariables);
+            int exitCode = syncthingCore.runSyncthing(parameters, environmentVariables);
                 
-            Log.d(TAG, "Syncthing process started with exit code: " + response.exitCode());
+            // Log.d(TAG, "Syncthing process started with exit code: " + exitCode);
 
             return Result.success();
         } catch (SyncthingCore.ExecutableNotFoundException e) {

@@ -1,7 +1,6 @@
 import { CloseIcon, Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import SyncthingAPI from '@/utils/syncthing/api/SyncthingAPI';
-import { useRouter } from 'expo-router';
+import { useSyncthing } from '@/utils/syncthing/SyncthingProvider';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Button, ButtonText } from './ui/button';
@@ -13,7 +12,7 @@ export default function Folders() {
     const [foldersLoading, setFoldersLoading] = useState(false);
     const [foldersError, setFoldersError] = useState<string | null>(null);
     const [showAddFolderModal, setShowAddFolderModal] = useState(false);
-    const router = useRouter();
+    const syncthing = useSyncthing();
 
     // Fetch folders data when component mounts
     useEffect(() => {
@@ -26,11 +25,10 @@ export default function Folders() {
             setFoldersLoading(true);
             setFoldersError(null);
             
-            const api = new SyncthingAPI("foobar");
-            const folderStats = await api.getStatsFolder();
+            const folderStats = await syncthing.api?.getStatsFolder();
             
             // Convert stats folder object to array for display
-            const folderArray = Object.entries(folderStats).map(([folderId, folderData]) => ({
+            const folderArray = Object.entries(folderStats ? folderStats : []).map(([folderId, folderData]) => ({
                 id: folderId,
                 ...folderData
             }));
@@ -47,8 +45,7 @@ export default function Folders() {
     // Pause all syncing
     const pauseAll = async () => {
         try {
-            const api = new SyncthingAPI("foobar");
-            await api.postSystemPause();
+            syncthing.api?.postSystemPause();
             // Refresh folders data after pausing
             fetchFolders();
         } catch (error: any) {
@@ -60,10 +57,9 @@ export default function Folders() {
     // Rescan all folders
     const rescanAll = async () => {
         try {
-            const api = new SyncthingAPI("foobar");
             // This endpoint doesn't seem to exist in the API - we'll scan each folder individually
             // Or we can use the global scan endpoint if available
-            await api.postDBScan();
+            await syncthing.api?.postDBScan();
             // Refresh folders data after rescanning
             fetchFolders();
         } catch (error: any) {
