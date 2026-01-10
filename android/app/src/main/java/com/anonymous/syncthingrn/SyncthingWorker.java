@@ -1,36 +1,33 @@
 package com.anonymous.syncthingrn;
 
-import android.content.Intent;
-import android.os.Bundle;
-import com.facebook.react.HeadlessJsTaskService;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.jstasks.HeadlessJsTaskConfig;
+import static androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE;
 
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.util.Log;
 
-import javax.inject.Inject;
-import javax.xml.transform.Result;
-
-import android.content.Context;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkRequest;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.Operation;
 import androidx.work.Worker;
 import androidx.work.WorkManager;
 import androidx.work.ForegroundInfo;
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
-import com.facebook.react.bridge.ReactApplicationContext; 
 
+import com.anonymous.SyncthingRN.R;
+import com.facebook.react.bridge.ReactApplicationContext;
 
 public class SyncthingWorker extends Worker {
 
@@ -40,24 +37,19 @@ public class SyncthingWorker extends Worker {
     /**
      * Method to trigger the creation of the worker in the background. Should be started on first run. 
      * @param environmentVariables
-     * @param promise
      */
     public static void startWorker(ReactApplicationContext context, HashMap environmentVariables) {
-        OneTimeWorkRequest syncthingWorkerRequest = new OneTimeWorkRequest.Builder(SyncthingWorker.class).build();
 
-        WorkManager.getInstance(context).enqueueUniqueWork(
+        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+
+        OneTimeWorkRequest syncthingWorkerRequest = new OneTimeWorkRequest.Builder(SyncthingWorker.class).setConstraints(constraints).build();
+
+        Operation manager = WorkManager.getInstance(context).enqueueUniqueWork(
             TAG,
             ExistingWorkPolicy.KEEP,
             syncthingWorkerRequest
         );
     }
-    public static void stopWorker(ReactApplicationContext context) {
-        WorkManager workManager = WorkManager.getInstance(context);
-        workManager.getInstance(context).cancelAllWorkByTag(TAG);
-    }
-
-    private NotificationManager notificationManager;
-
 
     private Context context;
 
@@ -84,7 +76,7 @@ public class SyncthingWorker extends Worker {
             HashMap<String, String> environmentVariables = new HashMap<>();
             
             // Create an overlay so the task doesn't die
-            // setForegroundAsync(createForegroundInfo("Syncthing Running"));
+            setForegroundAsync(getForegroundInfo());
 
             // Create the syncthing instance using the SyncthingCore's method
             SyncthingCore.RunSyncthingResponse response = syncthingCore.runSyncthingCommand(parameters, environmentVariables);
@@ -97,5 +89,34 @@ public class SyncthingWorker extends Worker {
         } catch (IOException e) {
             return Result.retry();
         }
+    }
+
+    @NonNull
+    @Override
+    public ForegroundInfo getForegroundInfo() {
+        Context context = getApplicationContext();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createChannel();
+        }
+
+        Notification notification = new NotificationCompat.Builder(context, TAG)
+                .setContentTitle("Running Syncthing")
+                .setContentText("Running in foreground")
+                .setSmallIcon(R.drawable.splashscreen_logo)
+                .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
+                .setOngoing(true)
+                .build();
+
+        return new ForegroundInfo(notificationId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private void createChannel() {
+        NotificationChannel channel = new NotificationChannel(TAG, TAG, NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription(TAG);
+        // Register the channel with the system
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(channel);
     }
 }

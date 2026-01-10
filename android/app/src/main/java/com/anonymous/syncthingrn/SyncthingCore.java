@@ -46,6 +46,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,16 +108,11 @@ public class SyncthingCore {
 
             BufferedReader bufferedReader = null;
 
-            try {
-                bufferedReader = new BufferedReader(new InputStreamReader(shellProcess.getInputStream(), "UTF-8"));
-                logs = bufferedReader.lines().toList();
-                
-            } catch (IOException e) {
-                logs.add("runShellCommand: Failed to read output");
-            } finally {
-                if (bufferedReader != null) {
-                    bufferedReader.close();
-                }
+            bufferedReader = new BufferedReader(new InputStreamReader(shellProcess.getInputStream(), StandardCharsets.UTF_8));
+            logs = bufferedReader.lines().toList();
+
+            if (bufferedReader != null) {
+                bufferedReader.close();
             }
             exitCode = shellProcess.waitFor();
         } catch (IOException | InterruptedException e) {
@@ -207,7 +203,7 @@ public class SyncthingCore {
         MulticastLock multicastLock = null;
         int exitCode = 0;
         List<String> logs = new ArrayList<String>();
-        
+
         try {
             // Set up the full command with parameters, and the environment variables
             String[] command = createCommandWithBinary(getBinaryLocation(), parameters);
@@ -218,11 +214,9 @@ public class SyncthingCore {
 
             // Creates a process with the environment variables
             ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.inheritIO();
             processBuilder.environment().putAll(validateSyncthingEnvironment(environmentVariables));
             syncthingProcess = processBuilder.start();
-
-            // Get all the logs
-            logs = getSyncthingLogs(syncthingProcess);
             
             // When the process is done this will run.
             exitCode = syncthingProcess.waitFor();
@@ -280,7 +274,7 @@ public class SyncthingCore {
         BufferedReader outputReader = null;
         List<String> syncthingLogs = new ArrayList<>();
         try {
-            outputReader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF_8"));
+            outputReader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
             
             String line;
             while ((line = outputReader.readLine()) != null) {
