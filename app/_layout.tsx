@@ -1,34 +1,43 @@
-import { FontAwesome6 } from "@react-native-vector-icons/fontawesome6";
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import Index from './index';
-import Settings from './settings';
+import SettingsNavigator from "./settings/_layout";
 
-const Tab = createBottomTabNavigator();
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import { Icon, SettingsIcon } from "@/components/ui/icon";
+import '@/global.css';
+import { Link } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <Tab.Navigator initialRouteName="Home">
-      <Tab.Screen 
-        name="Home" 
-        component={Index} 
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome6 name='house-chimney' iconStyle="solid" size={25} />
-          ),
-        }} 
+    
+    <GluestackUIProvider mode="light">
+      <Stack.Navigator initialRouteName="Syncthing Android" 
+        screenOptions={{ 
+          headerStatusBarHeight: 0,
+          headerShown: true,
+          headerRight: () => {return <Link screen="Settings" className='mr-4' params={{ screen: 'Syncthing' }}><Icon as={SettingsIcon}/></Link> },
+          headerStyle: { 
+            height: 50,
+          },
+          headerTitleStyle: {
+            height: 30,
+            marginTop: 2,
+          }
+        }}
+      >
+      <Stack.Screen 
+        name="Syncthing Android"
+        component={Index}
       />
-      <Tab.Screen 
+      <Stack.Screen 
         name="Settings" 
-        component={Settings} 
-        options={{
-          tabBarLabel: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome6 name='gear' iconStyle="solid" size={25}/>
-          ),
-        }} 
+        component={SettingsNavigator} 
       />
-    </Tab.Navigator>
+    </Stack.Navigator>
+    </GluestackUIProvider>
+  
   );
 }

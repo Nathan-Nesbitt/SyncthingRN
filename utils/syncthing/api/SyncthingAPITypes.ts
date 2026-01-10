@@ -297,6 +297,7 @@ export interface StatsFolder {
     lastFile: {
       filename: string;
       at: string;
+      deleted ?: boolean;
     };
   };
 }
