@@ -16,11 +16,11 @@ export default function App() {
     <GluestackUIProvider mode="light">
       <Stack.Navigator initialRouteName="Syncthing Android" 
         screenOptions={{ 
-          headerStatusBarHeight: 0,
+          headerStatusBarHeight: 40,
           headerShown: true,
           headerRight: () => {return <Link screen="Settings" className='mr-4' params={{ screen: 'Syncthing' }}><Icon as={SettingsIcon}/></Link> },
           headerStyle: { 
-            height: 50,
+            height: 90,
           },
           headerTitleStyle: {
             height: 30,
