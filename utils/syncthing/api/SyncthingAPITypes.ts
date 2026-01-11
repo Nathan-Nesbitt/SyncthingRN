@@ -69,6 +69,31 @@ export interface Device {
   remoteGUIPort: number;
 }
 
+// API input type for adding a device
+export interface AddDeviceInput {
+  deviceID: string;
+  name: string;
+  addresses: string[];
+  compression: string;
+  certName: string;
+  introducer: boolean;
+  skipIntroductionRemovals: boolean;
+  introducedBy: string;
+  paused: boolean;
+  allowedNetworks: string[];
+  autoAcceptFolders: boolean;
+  maxSendKbps: number;
+  maxRecvKbps: number;
+  ignoredFolders: {
+    time: string;
+    id: string;
+    label: string;
+  }[];
+  maxRequestKiB: number;
+  untrusted: boolean;
+  remoteGUIPort: number;
+}
+
 export interface GUIConfig {
   enabled: boolean;
   address: string;
