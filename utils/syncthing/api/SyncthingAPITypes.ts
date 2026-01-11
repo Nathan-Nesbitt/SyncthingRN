@@ -393,3 +393,312 @@ export interface PaginationParams {
   since?: number;
   timeout?: number;
 }
+
+// Event type definitions based on the documentation
+export interface ClusterConfigReceivedEventData {
+  device: string;
+}
+
+export interface ConfigSavedEventData {
+  version: number;
+  folders: any[];
+  devices: any[];
+  gui: any;
+  ldap: any;
+  options: any;
+  remoteIgnoredDevices: any[];
+  defaults: any;
+}
+
+export interface DeviceConnectedEventData {
+  addr: string;
+  id: string;
+  deviceName: string;
+  clientName: string;
+  clientVersion: string;
+  type: string;
+}
+
+export interface DeviceDisconnectedEventData {
+  error: string;
+  id: string;
+}
+
+export interface DeviceDiscoveredEventData {
+  addrs: string[];
+  device: string;
+}
+
+export interface DevicePausedEventData {
+  device: string;
+}
+
+export interface DeviceRejectedEventData {
+  address: string;
+  name: string;
+  device: string;
+}
+
+export interface DeviceResumedEventData {
+  device: string;
+}
+
+export interface DownloadProgressEventData {
+  [folder: string]: {
+    [file: string]: {
+      total: number;
+      pulling: number;
+      copiedFromOrigin: number;
+      reused: number;
+      copiedFromElsewhere: number;
+      pulled: number;
+      bytesTotal: number;
+      bytesDone: number;
+    };
+  };
+}
+
+export interface FailureEventData {
+  error: string;
+}
+
+export interface FolderCompletionEventData {
+  completion: number;
+  device: string;
+  folder: string;
+  globalBytes: number;
+  globalItems: number;
+  needBytes: number;
+  needDeletes: number;
+  needItems: number;
+  remoteState: string;
+  sequence: number;
+}
+
+export interface FolderErrorsEventData {
+  errors: {
+    error: string;
+    path: string;
+  }[];
+  folder: string;
+}
+
+export interface FolderPausedEventData {
+  id: string;
+  label: string;
+}
+
+export interface FolderRejectedEventData {
+  device: string;
+  folder: string;
+  folderLabel: string;
+}
+
+export interface FolderResumedEventData {
+  id: string;
+  label: string;
+}
+
+export interface FolderScanProgressEventData {
+  total: number;
+  rate: number;
+  current: number;
+  folder: string;
+}
+
+export interface FolderSummaryEventData {
+  folder: string;
+  summary: any;
+}
+
+export interface FolderWatchStateChangedEventData {
+  folder: string;
+  from: string;
+  to: string;
+}
+
+export interface ItemFinishedEventData {
+  item: string;
+  folder: string;
+  error: string | null;
+  type: string;
+  action: string;
+}
+
+export interface ItemStartedEventData {
+  item: string;
+  folder: string;
+  type: string;
+  action: string;
+}
+
+export interface ListenAddressesChangedEventData {
+  address: any;
+  wan: any[];
+  lan: any[];
+}
+
+export interface LocalChangeDetectedEventData {
+  action: string;
+  folder: string;
+  folderID: string;
+  label: string;
+  path: string;
+  type: string;
+}
+
+export interface LocalIndexUpdatedEventData {
+  folder: string;
+  items: number;
+  filenames: string[];
+  sequence: number;
+  version: number;
+}
+
+export interface LoginAttemptEventData {
+  remoteAddress: string;
+  username: string;
+  success: boolean;
+  proxy?: string;
+}
+
+export interface PendingDevicesChangedEventData {
+  added: {
+    address: string;
+    deviceID: string;
+    name: string;
+  }[];
+  removed: {
+    deviceID: string;
+  }[];
+}
+
+export interface PendingFoldersChangedEventData {
+  added: {
+    deviceID: string;
+    folderID: string;
+    folderLabel: string;
+    receiveEncrypted: string;
+    remoteEncrypted: string;
+  }[];
+  removed: {
+    deviceID?: string;
+    folderID: string;
+  }[];
+}
+
+export interface RemoteChangeDetectedEventData {
+  type: string;
+  action: string;
+  folder: string;
+  folderID: string;
+  path: string;
+  label: string;
+  modifiedBy: string;
+}
+
+export interface RemoteDownloadProgressEventData {
+  state: {
+    [file: string]: number;
+  };
+  device: string;
+  folder: string;
+}
+
+export interface RemoteIndexUpdatedEventData {
+  device: string;
+  folder: string;
+  items: number;
+}
+
+export interface StartingEventData {
+  home: string;
+}
+
+export interface StartupCompleteEventData {
+  // This event has no data
+}
+
+export interface StateChangedEventData {
+  folder: string;
+  from: string;
+  duration: number;
+  to: string;
+}
+
+// Union type of all event data types
+export type EventData = 
+  | ClusterConfigReceivedEventData
+  | ConfigSavedEventData
+  | DeviceConnectedEventData
+  | DeviceDisconnectedEventData
+  | DeviceDiscoveredEventData
+  | DevicePausedEventData
+  | DeviceRejectedEventData
+  | DeviceResumedEventData
+  | DownloadProgressEventData
+  | FailureEventData
+  | FolderCompletionEventData
+  | FolderErrorsEventData
+  | FolderPausedEventData
+  | FolderRejectedEventData
+  | FolderResumedEventData
+  | FolderScanProgressEventData
+  | FolderSummaryEventData
+  | FolderWatchStateChangedEventData
+  | ItemFinishedEventData
+  | ItemStartedEventData
+  | ListenAddressesChangedEventData
+  | LocalChangeDetectedEventData
+  | LocalIndexUpdatedEventData
+  | LoginAttemptEventData
+  | PendingDevicesChangedEventData
+  | PendingFoldersChangedEventData
+  | RemoteChangeDetectedEventData
+  | RemoteDownloadProgressEventData
+  | RemoteIndexUpdatedEventData
+  | StartingEventData
+  | StartupCompleteEventData
+  | StateChangedEventData;
+
+// Event type mapping for type-safe access
+export interface EventTypeMap {
+  ClusterConfigReceived: ClusterConfigReceivedEventData;
+  ConfigSaved: ConfigSavedEventData;
+  DeviceConnected: DeviceConnectedEventData;
+  DeviceDisconnected: DeviceDisconnectedEventData;
+  DeviceDiscovered: DeviceDiscoveredEventData;
+  DevicePaused: DevicePausedEventData;
+  DeviceRejected: DeviceRejectedEventData;
+  DeviceResumed: DeviceResumedEventData;
+  DownloadProgress: DownloadProgressEventData;
+  Failure: FailureEventData;
+  FolderCompletion: FolderCompletionEventData;
+  FolderErrors: FolderErrorsEventData;
+  FolderPaused: FolderPausedEventData;
+  FolderRejected: FolderRejectedEventData;
+  FolderResumed: FolderResumedEventData;
+  FolderScanProgress: FolderScanProgressEventData;
+  FolderSummary: FolderSummaryEventData;
+  FolderWatchStateChanged: FolderWatchStateChangedEventData;
+  ItemFinished: ItemFinishedEventData;
+  ItemStarted: ItemStartedEventData;
+  ListenAddressesChanged: ListenAddressesChangedEventData;
+  LocalChangeDetected: LocalChangeDetectedEventData;
+  LocalIndexUpdated: LocalIndexUpdatedEventData;
+  LoginAttempt: LoginAttemptEventData;
+  PendingDevicesChanged: PendingDevicesChangedEventData;
+  PendingFoldersChanged: PendingFoldersChangedEventData;
+  RemoteChangeDetected: RemoteChangeDetectedEventData;
+  RemoteDownloadProgress: RemoteDownloadProgressEventData;
+  RemoteIndexUpdated: RemoteIndexUpdatedEventData;
+  Starting: StartingEventData;
+  StartupComplete: StartupCompleteEventData;
+  StateChanged: StateChangedEventData;
+}
+
+// Base event structure
+export interface SyncthingEvent extends Event {
+  type: keyof EventTypeMap;
+  data: EventTypeMap[keyof EventTypeMap];
+}

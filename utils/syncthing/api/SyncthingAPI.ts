@@ -1,4 +1,5 @@
 import { ClusterPendingDevices, ClusterPendingFolders, DBCompletion, DBFile, DBIgnore, DBStatus, Device, Folder, FolderErrors, FolderVersions, GUIConfig, Options, PaginationParams, StatsDevice, StatsFolder, SVCDeviceId, SVCRandomString, SVCReport, SystemError, SystemLog, SystemPaths, SystemStatus, SystemUpgrade, SystemVersion } from "./SyncthingAPITypes";
+import { SyncthingEventAPI } from "./SyncthingEventAPI";
 
 // Base URL for Syncthing API
 const BASE_URL = 'http://127.0.0.1:8384/rest';
@@ -7,7 +8,9 @@ const BASE_URL = 'http://127.0.0.1:8384/rest';
 class SyncthingAPI {
   private baseUrl: string;
   private apiKey: string;
-  private headers: Record<string, string>;
+  private headers: Record<string, string>; 
+  
+  public syncthingEventApi: SyncthingEventAPI;
 
   constructor(apiKey: string) {
     this.baseUrl = BASE_URL;
@@ -16,6 +19,7 @@ class SyncthingAPI {
       'Content-Type': 'application/json',
       'X-API-Key': this.apiKey,
     };
+    this.syncthingEventApi = new SyncthingEventAPI(this.baseUrl, this.apiKey);
   }
 
   // === Generic API methods ===
