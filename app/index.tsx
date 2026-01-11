@@ -1,3 +1,4 @@
+import DevicesList from '@/components/devices/devices';
 import Folders from '@/components/folders';
 import { Button, ButtonText } from '@/components/ui/button';
 import { generateSyncthingEnvironment } from '@/utils/syncthing/SyncthingModule';
@@ -47,10 +48,17 @@ export default function Index() {
           <ButtonText>Check Syncthing Status </ButtonText>
         </Button>
       </View>
-      <Folders/>
+      
+      <View style={styles.section}>
+        <Folders/>
+      </View>
+      
+      <View style={styles.section}>
+        <DevicesList />
+      </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -84,6 +92,9 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '80%',
     alignSelf: 'center',
+    marginBottom: 20,
+  },
+  section: {
     marginBottom: 20,
   }
 });

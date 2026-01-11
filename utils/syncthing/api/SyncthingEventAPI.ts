@@ -12,7 +12,7 @@ export class SyncthingEventAPI {
 
   // Get events from Syncthing
   async getEvents(since?: number, timeout?: number, events?: string[]): Promise<SyncthingEvent[]> {
-    const url = new URL(`${this.baseUrl}/rest/events`);
+    const url = new URL(`${this.baseUrl}/events`);
     
     if (since !== undefined) {
       url.searchParams.append('since', since.toString());
@@ -42,7 +42,7 @@ export class SyncthingEventAPI {
 
   // Get a specific event by ID
   async getEvent(id: number): Promise<SyncthingEvent> {
-    const response = await fetch(`${this.baseUrl}/rest/events/${id}`, {
+    const response = await fetch(`${this.baseUrl}/events/${id}`, {
       headers: {
         'X-API-Key': this.apiKey,
         'Accept': 'application/json'
