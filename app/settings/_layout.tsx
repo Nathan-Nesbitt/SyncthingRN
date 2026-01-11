@@ -10,7 +10,7 @@ export default function SettingsNavigator() {
       <Stack.Screen 
         name="Settings" 
         component={Settings} 
-        options={{ headerShown: false }}
+        options={{ headerShown: true, headerTitle: "Settings" }}
       />
     </Stack.Navigator>
   );

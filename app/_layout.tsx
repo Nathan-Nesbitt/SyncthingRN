@@ -1,12 +1,10 @@
 import React from 'react';
-import Index from './index';
+import TabLayout from './(tabs)/_layout';
 import SettingsNavigator from "./settings/_layout";
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { Icon, SettingsIcon } from "@/components/ui/icon";
 import '@/global.css';
 import { SyncthingProvider } from '@/utils/syncthing/SyncthingProvider';
-import { Link } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 const Stack = createStackNavigator();
@@ -16,27 +14,16 @@ export default function App() {
     
     <GluestackUIProvider mode="light">
       <SyncthingProvider>
-         <Stack.Navigator initialRouteName="Syncthing Android" 
-            screenOptions={{ 
-              headerStatusBarHeight: 40,
-              headerShown: true,
-              headerRight: () => {return <Link screen="Settings" className='mr-4' params={{ screen: 'Syncthing' }}><Icon as={SettingsIcon}/></Link> },
-              headerStyle: { 
-                height: 90,
-              },
-              headerTitleStyle: {
-                height: 30,
-                marginTop: 2,
-              }
-            }}
-          >
+        <Stack.Navigator initialRouteName="TabLayout">
           <Stack.Screen 
-            name="Syncthing Android"
-            component={Index}
+            name="TabLayout" 
+            component={TabLayout} 
+            options={{ headerShown: false }}
           />
           <Stack.Screen 
             name="Settings" 
             component={SettingsNavigator} 
+            options={{ headerShown: true, headerTitle: "Settings" }}
           />
         </Stack.Navigator>
       </SyncthingProvider>

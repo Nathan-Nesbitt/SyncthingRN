@@ -32,7 +32,6 @@ export const SyncthingProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   useEffect(() => {
     module?.getAPIKey().then(apikey => {
-      console.log(apikey)
       setApi(new SyncthingAPI(apikey.trim()));
       setIsInitialized(true)
     })

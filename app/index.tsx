@@ -1,4 +1,3 @@
-import DevicesList from '@/components/devices/devices';
 import Folders from '@/components/folders';
 import { Button, ButtonText } from '@/components/ui/button';
 import { generateSyncthingEnvironment } from '@/utils/syncthing/SyncthingModule';
@@ -51,10 +50,6 @@ export default function Index() {
       
       <View style={styles.section}>
         <Folders/>
-      </View>
-      
-      <View style={styles.section}>
-        <DevicesList />
       </View>
     </ScrollView>
   );

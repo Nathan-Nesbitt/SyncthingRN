@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useSyncthing } from '../../utils/syncthing/SyncthingProvider';
 import { Device } from '../../utils/syncthing/api/SyncthingAPITypes';
 import DeviceComponent from './device';
@@ -69,12 +69,11 @@ const DevicesList: React.FC = () => {
   }
 
   return (
-    <FlatList
-      data={devices}
-      keyExtractor={(item) => item.deviceID}
-      renderItem={({ item }) => <DeviceComponent device={item} />}
-      contentContainerStyle={styles.listContainer}
-    />
+    <View>
+      {
+        devices.map((item)=> <DeviceComponent key={item.deviceID} device={item} />)
+      }
+    </View>
   );
 };
 

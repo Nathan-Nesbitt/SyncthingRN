@@ -1,124 +1,134 @@
 import { useSyncthing } from '@/utils/syncthing/SyncthingProvider';
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { Button, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function Settings() {
-    const [config, setConfig] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const navigation = useNavigation();
+  
+  // Hide header when this screen is shown from tab navigation
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
 
-    const syncthing = useSyncthing();
+  const [config, setConfig] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchConfig = async () => {
-        try {
-            const configData = await syncthing.api?.getConfig();
-            setConfig(configData);
-            setLoading(false);
-        } catch (err) {
-            setError('Failed to fetch config: ' + (err as Error).message);
-            setLoading(false);
-        }
-        };
+  const syncthing = useSyncthing();
 
-        fetchConfig();
-    }, []);
-
-    if (loading) {
-        return (
-        <View style={styles.container}>
-            <Text>Loading settings...</Text>
-        </View>
-        );
-    }
-
-    if (error) {
-        return (
-        <View style={styles.container}>
-            <Text style={styles.error}>{error}</Text>
-        </View>
-        );
-    }
-
-    if (!config) {
-        return (
-        <View style={styles.container}>
-            <Text>No config data</Text>
-        </View>
-        );
-    }
-
-    const handleSave = async () => {
-        try {
-        await syncthing.api?.putConfig(config);
-        alert('Config saved successfully!');
-        } catch (err) {
-        alert('Failed to save config: ' + (err as Error).message);
-        }
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const configData = await syncthing.api?.getConfig();
+        setConfig(configData);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch config: ' + (err as Error).message);
+        setLoading(false);
+      }
     };
-    
+
+    fetchConfig();
+  }, []);
+
+  if (loading) {
     return (
-        <ScrollView style={styles.container}>            
-            {/* GUI Settings */}
-            <View style={styles.section}>
-            <Text style={styles.sectionTitle}>GUI Settings</Text>
-            <Text style={styles.label}>GUI Address</Text>
-            <TextInput
-                style={styles.input}
-                value={config.gui?.address || ''}
-                onChangeText={(text) => setConfig({...config, gui: {...config.gui, address: text}})}
-                placeholder="GUI Address"
-            />
-            <Text style={styles.label}>GUI Password</Text>
-            <TextInput
-                style={styles.input}
-                value={config.gui?.password || ''}
-                onChangeText={(text) => setConfig({...config, gui: {...config.gui, password: text}})}
-                placeholder="GUI Password"
-            />
-            <Text style={styles.label}>API Key</Text>
-            <TextInput
-                style={styles.input}
-                value={config.gui?.apiKey || ''}
-                onChangeText={(text) => setConfig({...config, gui: {...config.gui, apiKey: text}})}
-                placeholder="API Key"
-            />
-            </View>
+      <View style={styles.container}>
+        <Text>Loading settings...</Text>
+      </View>
+    );
+  }
 
-            {/* Options Settings */}
-            <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Options</Text>
-            <Text style={styles.label}>Listen Addresses (comma separated)</Text>
-            <TextInput
-                style={styles.input}
-                value={config.options?.listenAddresses?.join(', ') || ''}
-                onChangeText={(text) => setConfig({...config, options: {...config.options, listenAddresses: text.split(',').map(s => s.trim())}})}
-                placeholder="Listen Addresses (comma separated)"
-            />
-            <Text style={styles.label}>Max Send Kbps</Text>
-            <TextInput
-                style={styles.input}
-                value={config.options?.maxSendKbps?.toString() || ''}
-                onChangeText={(text) => setConfig({...config, options: {...config.options, maxSendKbps: parseInt(text) || 0}})}
-                placeholder="Max Send Kbps"
-                keyboardType="numeric"
-            />
-            <Text style={styles.label}>Max Recv Kbps</Text>
-            <TextInput
-                style={styles.input}
-                value={config.options?.maxRecvKbps?.toString() || ''}
-                onChangeText={(text) => setConfig({...config, options: {...config.options, maxRecvKbps: parseInt(text) || 0}})}
-                placeholder="Max Recv Kbps"
-                keyboardType="numeric"
-            />
-            </View>
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.error}>{error}</Text>
+      </View>
+    );
+  }
 
-            {/* Save Button */}
-            <View style={styles.buttonContainer}>
-            <Button title="Save Config" onPress={handleSave} />
-            </View>
-        </ScrollView>
-    )
+  if (!config) {
+    return (
+      <View style={styles.container}>
+        <Text>No config data</Text>
+      </View>
+    );
+  }
+
+  const handleSave = async () => {
+    try {
+      await syncthing.api?.putConfig(config);
+      alert('Config saved successfully!');
+    } catch (err) {
+      alert('Failed to save config: ' + (err as Error).message);
+    }
+  };
+  
+  return (
+    <ScrollView style={styles.container}>            
+      {/* GUI Settings */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>GUI Settings</Text>
+        <Text style={styles.label}>GUI Address</Text>
+        <TextInput
+          style={styles.input}
+          value={config.gui?.address || ''}
+          onChangeText={(text) => setConfig({...config, gui: {...config.gui, address: text}})}
+          placeholder="GUI Address"
+        />
+        <Text style={styles.label}>GUI Password</Text>
+        <TextInput
+          style={styles.input}
+          value={config.gui?.password || ''}
+          onChangeText={(text) => setConfig({...config, gui: {...config.gui, password: text}})}
+          placeholder="GUI Password"
+        />
+        <Text style={styles.label}>API Key</Text>
+        <TextInput
+          style={styles.input}
+          value={config.gui?.apiKey || ''}
+          onChangeText={(text) => setConfig({...config, gui: {...config.gui, apiKey: text}})}
+          placeholder="API Key"
+        />
+      </View>
+
+      {/* Options Settings */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Options</Text>
+        <Text style={styles.label}>Listen Addresses (comma separated)</Text>
+        <TextInput
+          style={styles.input}
+          value={config.options?.listenAddresses?.join(', ') || ''}
+          onChangeText={(text) => setConfig({...config, options: {...config.options, listenAddresses: text.split(',').map(s => s.trim())}})}
+          placeholder="Listen Addresses (comma separated)"
+        />
+        <Text style={styles.label}>Max Send Kbps</Text>
+        <TextInput
+          style={styles.input}
+          value={config.options?.maxSendKbps?.toString() || ''}
+          onChangeText={(text) => setConfig({...config, options: {...config.options, maxSendKbps: parseInt(text) || 0}})}
+          placeholder="Max Send Kbps"
+          keyboardType="numeric"
+        />
+        <Text style={styles.label}>Max Recv Kbps</Text>
+        <TextInput
+          style={styles.input}
+          value={config.options?.maxRecvKbps?.toString() || ''}
+          onChangeText={(text) => setConfig({...config, options: {...config.options, maxRecvKbps: parseInt(text) || 0}})}
+          placeholder="Max Recv Kbps"
+          keyboardType="numeric"
+        />
+      </View>
+
+      {/* Save Button */}
+      <View style={styles.buttonContainer}>
+        <Button title="Save Config" onPress={handleSave} />
+      </View>
+    </ScrollView>
+  )
 }
 
 const styles = StyleSheet.create({
